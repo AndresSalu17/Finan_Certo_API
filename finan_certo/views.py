@@ -9,5 +9,5 @@ class CadastroUsuarioViewSet(viewsets.ModelViewSet):
     queryset = CadastroUsuario.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = CadastroUsuarioSerializer
-    ordering_fields = ('USUARIO_ID',)
-    filterset_fields = ('USUARIO_ID', 'USUARIO_NOME_COMPLETO', 'USUARIO_EMAIL') 
+    ordering_fields = ('id',)
+    filterset_fields = ('id', 'USUARIO_NOME_COMPLETO', 'USUARIO_EMAIL') 
