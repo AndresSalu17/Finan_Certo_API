@@ -2,7 +2,7 @@ import re
 from django.forms import ValidationError
 from rest_framework import serializers
 
-from finan_certo.models import CadastroUsuario
+from finan_certo.models import CadastroUsuario, FinancasUsuario, Meses
 
 class CadastroUsuarioSerializer(serializers.ModelSerializer):
 
@@ -28,3 +28,15 @@ class CadastroUsuarioSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('A senha deve conter pelo menos um caractere especial.')
         
         return data
+    
+class MesesSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Meses
+        fields = '__all__'
+
+class FinancasUsuarioSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FinancasUsuario
+        fields = '__all__'

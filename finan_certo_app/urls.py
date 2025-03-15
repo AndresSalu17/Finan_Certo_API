@@ -19,11 +19,12 @@ from django.urls import include, path
 
 from rest_framework import routers
 
-from finan_certo.views import CadastroUsuarioViewSet
+from finan_certo.views import CadastroUsuarioViewSet, FinancasUsuarioViewSet
 
 router = routers.DefaultRouter()
 
 router.register(r'cadastrousuario', CadastroUsuarioViewSet)
+router.register(r'financasusuario', FinancasUsuarioViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
