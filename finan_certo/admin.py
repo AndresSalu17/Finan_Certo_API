@@ -14,3 +14,11 @@ class FinancasUsuarioAdmin(admin.ModelAdmin):
     list_filter = ('id',)
     search_fields = ('id', 'FINANCAS_RECEITAS','FINANCAS_CRIADO_EM')
 admin.site.register(FinancasUsuario, FinancasUsuarioAdmin)
+
+class LoginAdmin(admin.ModelAdmin):
+    list_display = ('USUARIO_EMAIL', 'USUARIO_SENHA')
+    list_filter = ('USUARIO_EMAIL',)
+    search_fields = ('USUARIO_NOME_COMPLETO', 'USUARIO_EMAIL')
+
+admin.register(LoginAdmin)
+

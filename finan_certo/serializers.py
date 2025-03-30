@@ -10,6 +10,14 @@ class CadastroUsuarioSerializer(serializers.ModelSerializer):
         model = CadastroUsuario
         fields = '__all__'
 
+    
+    def validate_email(self,value):
+
+        if CadastroUsuario.objects.filter(USUARIO_EMAIL=value).exists():
+            raise serializers.ValidationError('Email já cadastrado!')
+
+        return value
+
     def validate(self, data):
     
         if len(data['USUARIO_SENHA']) < 8:
