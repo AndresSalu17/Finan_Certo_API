@@ -5,7 +5,7 @@ class CadastroUsuario(models.Model):
     USUARIO_NOME_COMPLETO = models.CharField(max_length=200)
     USUARIO_EMAIL = models.EmailField(max_length=200, null=False, blank=False)
     USUARIO_SENHA = models.CharField(max_length=50, null=False, blank=False)
-    USUARIO_CRIADO_EM = models.DateTimeField(auto_now=True)
+    USUARIO_CRIADO_EM = models.DateTimeField(auto_now_add=True)
 
 
     def __str__(self):
@@ -14,21 +14,27 @@ class CadastroUsuario(models.Model):
     class Meta:
         db_table = 'fc_usuarios'
 
-class Meses(models.Model):
-    MES_ATUAL = models.CharField(max_length=20, unique=True)
-
-    def __str__(self):
-        return self.MES_ATUAL
-
-    class Meta:
-        db_table = 'fc_mes'
-
 class FinancasUsuario(models.Model):
+    TIPO_MES = (
+        (1,'Janeiro'),
+        (2,'Fevereiro'),
+        (3,'Março'),
+        (4,'Abril'),
+        (5,'Maio'),
+        (6,'Junho'),
+        (7,'Julho'),
+        (8,'Agosto'),
+        (9,'Setembro'),
+        (10,'Outubro'),
+        (11,'Novembro'),
+        (12,'Dezembro')
+    )
+
+    MES_ATUAL = models.IntegerField(choices=TIPO_MES)
     ID_USUARIO = models.ForeignKey(CadastroUsuario, on_delete=models.CASCADE)
     FINANCAS_RECEITAS = models.FloatField(null=False, blank=False)
     FINANCAS_DESPESAS = models.FloatField(null=False, blank=False)
     FINANCAS_BALANCO = models.FloatField(null=False, blank=True)
-    ID_MES = models.ForeignKey(Meses, on_delete=models.CASCADE, to_field='id')
     FINANCAS_CRIADO_EM = models.DateTimeField(auto_now=True)
     FINANCAS_ANO =  models.IntegerField(null=False)
 
@@ -43,7 +49,9 @@ class FinancasUsuario(models.Model):
         self.FINANCAS_ANO = self.FINANCAS_CRIADO_EM.year if self.FINANCAS_CRIADO_EM else timezone.now().year
 
         balancoExistente = FinancasUsuario.objects.filter(
-            ID_USUARIO=self.ID_USUARIO, ID_MES=self.ID_MES
+            ID_USUARIO=self.ID_USUARIO, 
+            MES_ATUAL=self.MES_ATUAL
+            
         ).first()
 
         if balancoExistente:
@@ -60,7 +68,40 @@ class FinancasUsuario(models.Model):
             super(FinancasUsuario, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.ID_USUARIO} - {self.ID_MES.MES_ATUAL} ({self.ano})"
+        return f"{self.ID_USUARIO} - {self.get_MES_ATUAL_display()} ({self.ano})"
     
     class Meta:
         db_table = "fc_financas_usuario"
+
+class UsuarioMeta(models.Model):
+    TIPO_MES = (
+        (1,'Janeiro'),
+        (2,'Fevereiro'),
+        (3,'Março'),
+        (4,'Abril'),
+        (5,'Maio'),
+        (6,'Junho'),
+        (7,'Julho'),
+        (8,'Agosto'),
+        (9,'Setembro'),
+        (10,'Outubro'),
+        (11,'Novembro'),
+        (12,'Dezembro')
+    )
+
+    MES_ATUAL = models.IntegerField(choices=TIPO_MES)
+    ID_USUARIO = models.ForeignKey(CadastroUsuario, on_delete=models.CASCADE)
+    ANO_META = models.IntegerField(null=False)
+    USUARIO_META = models.FloatField(null=False, blank=False)
+    USUARIO_ENTRADA = models.FloatField(null=True, blank=True)
+    META_CRIADO_EM = models.DateTimeField(auto_now_add=True)
+    ATUALIZADO_EM = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['ID_USUARIO', 'MES_ATUAL', 'ANO_META'], name='unique_usuario_meta')
+        ]
+        db_table = "fc_meta_usuario"
+
+    def __str__(self):
+        return f"{self.ID_USUARIO} - {self.get_MES_ATUAL_display()} ({self.ANO_META})"

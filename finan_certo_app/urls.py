@@ -19,13 +19,14 @@ from django.urls import include, path
 
 from rest_framework import routers
 
-from finan_certo.views import CadastroUsuarioViewSet, FinancasUsuarioViewSet, LoginViewSet
+from finan_certo.views import CadastroUsuarioViewSet, FinancasUsuarioViewSet, LoginViewSet, UsuarioMetaViewSet
 
 router = routers.DefaultRouter()
 
 router.register(r'cadastrousuario', CadastroUsuarioViewSet)
 router.register(r'financasusuario', FinancasUsuarioViewSet)
 router.register(r'login', LoginViewSet, basename='login')
+router.register(r'usuariometa/criar_ou_atualizar_meta', UsuarioMetaViewSet, basename='usuariometa')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
