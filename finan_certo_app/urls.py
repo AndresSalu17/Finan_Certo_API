@@ -26,7 +26,7 @@ router = routers.DefaultRouter()
 router.register(r'cadastrousuario', CadastroUsuarioViewSet)
 router.register(r'financasusuario', FinancasUsuarioViewSet)
 router.register(r'login', LoginViewSet, basename='login')
-router.register(r'usuariometa/criar_ou_atualizar_meta', UsuarioMetaViewSet, basename='usuariometa')
+router.register(r'usuariometa', UsuarioMetaViewSet, basename='usuariometa')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
