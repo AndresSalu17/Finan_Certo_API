@@ -45,7 +45,7 @@ class LoginViewSet(viewsets.ViewSet):
             return Response({'error': 'Usuário não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
         
 class UsuarioMetaViewSet(viewsets.ViewSet):
-    query_set = UsuarioMeta.objects.all()
+    queryset = UsuarioMeta.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = UsuarioMetaSerializer
 
