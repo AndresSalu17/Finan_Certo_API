@@ -1,5 +1,5 @@
 .env
-<<<<<<< HEAD
-=======
-__pycache__
->>>>>>> 5b4e97da8a44eaf2d55584800fde00524ee5b3e5
+
+__pycache__/
+
+.venv/

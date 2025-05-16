@@ -2,49 +2,33 @@ import re
 from django.forms import ValidationError
 from rest_framework import serializers
 
-from finan_certo.models import CadastroUsuario, FinancasUsuario, UsuarioMeta
+from finan_certo.models import FinancasUsuario, UsuarioMeta
 
-class CadastroUsuarioSerializer(serializers.ModelSerializer):
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
+class UserSerializer(serializers.ModelSerializer):
+    
+    password = serializers.CharField(write_only=True, min_length=8)
+    
+    def create(self, validated_data):
+        user = User(
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
     class Meta:
-        model = CadastroUsuario
+        model = User
         fields = '__all__'
-
-    
-    def validate_email(self,value):
-
-        if CadastroUsuario.objects.filter(USUARIO_EMAIL=value).exists():
-            raise serializers.ValidationError('Email já cadastrado!')
-
-        return value
-
-    def validate(self, data):
-    
-        if len(data['USUARIO_SENHA']) < 8:
-            raise serializers.ValidationError('Senha fraca!')
-            
-        if not re.search(r'[A-Z]', data['USUARIO_SENHA']):
-            raise serializers.ValidationError('A USUARIO_SENHA deve conter pelo menos uma letra maiúscula')
-            
-        if not re.search(r'[a-z]', data['USUARIO_SENHA']):
-            raise serializers.ValidationError('A senha deve conter pelo menos uma letra minúscula')
-            
-        if not re.search(r'[0-9]', data['USUARIO_SENHA']):
-            raise serializers.ValidationError("A senha deve conter pelo menos um número.")
-
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', data['USUARIO_SENHA']):
-            raise serializers.ValidationError('A senha deve conter pelo menos um caractere especial.')
-        
-        return data
-
 class FinancasUsuarioSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = FinancasUsuario
         fields = '__all__'
-
 class UsuarioMetaSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UsuarioMeta
         fields = '__all__'
+

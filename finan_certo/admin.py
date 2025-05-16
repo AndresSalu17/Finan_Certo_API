@@ -1,12 +1,31 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-from finan_certo.models import CadastroUsuario, FinancasUsuario, UsuarioMeta
+from finan_certo.models import CustomUser, FinancasUsuario, UsuarioMeta
 
-class CadastroUsuarioAdmin(admin.ModelAdmin):
-    list_display = ('id', 'USUARIO_NOME_COMPLETO', 'USUARIO_EMAIL', 'USUARIO_SENHA', 'USUARIO_CRIADO_EM')
-    list_filter = ('id',)
-    search_fields = ('id', 'USUARIO_NOME_COMPLETO')
-admin.site.register(CadastroUsuario, CadastroUsuarioAdmin)
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+    list_display = ("id", "email", "first_name", "last_name","is_active", "is_staff")
+    ordering = ("id",)
+
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Informações Pessoais", {
+         "fields": ("first_name", "last_name" )}),
+        ("Permissões", {"fields": ("is_active", "is_staff",
+         "is_superuser", "groups", "user_permissions")}),
+        ("Datas Importantes", {"fields": ("last_login", "date_joined")}),
+    )
+
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": ("email", "first_name", "last_name", "password1", "password2", "role", "calculator_access", "is_active", "is_staff", "is_superuser"),
+        }),
+    )
+
+    search_fields = ("email", "first_name", "last_name")
 
 class FinancasUsuarioAdmin(admin.ModelAdmin):
     list_display = ('id', 'FINANCAS_RECEITAS', 'FINANCAS_DESPESAS', 

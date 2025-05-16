@@ -5,16 +5,16 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from finan_certo.models import CadastroUsuario, FinancasUsuario, UsuarioMeta
-from finan_certo.serializers import CadastroUsuarioSerializer, FinancasUsuarioSerializer, UsuarioMetaSerializer
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
-class CadastroUsuarioViewSet(viewsets.ModelViewSet):
-    queryset = CadastroUsuario.objects.all()
-    permission_classes = [IsAuthenticated]
-    serializer_class = CadastroUsuarioSerializer
-    ordering_fields = ('id',)
-    filterset_fields = ('id', 'USUARIO_NOME_COMPLETO', 'USUARIO_EMAIL')
+from finan_certo.models import CustomUser, FinancasUsuario, UsuarioMeta
+from finan_certo.serializers import FinancasUsuarioSerializer, UserSerializer, UsuarioMetaSerializer
 
+User = get_user_model()
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 class FinancasUsuarioViewSet(viewsets.ModelViewSet):
     queryset = FinancasUsuario.objects.all()
     permission_classes = [IsAuthenticated]
@@ -22,10 +22,8 @@ class FinancasUsuarioViewSet(viewsets.ModelViewSet):
     ordering_fields = ('id', )
     filterset_fields = ('id',)
 
-class LoginViewSet(viewsets.ViewSet):
+class LoginViewSet(viewsets.ModelViewSet):
 
-    # queryset = CadastroUsuario.objects.all()
-    # permission_classes = [IsAuthenticated]
     def create(self, request):
         email = request.data.get('USUARIO_EMAIL')
         senha = request.data.get('USUARIO_SENHA')
@@ -34,17 +32,17 @@ class LoginViewSet(viewsets.ViewSet):
             return Response({'error': 'Email e senha são obrigatórios!'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            usuario = CadastroUsuario.objects.get(USUARIO_EMAIL=email)
+            usuario = CustomUser.objects.get(USUARIO_EMAIL=email)
             if usuario.USUARIO_SENHA == senha:
                 return Response({'message': 'Login realizado com sucesso!'}, status=status.HTTP_200_OK)
             
             else:
                 return Response({'error': 'Senha incorreta!'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        except CadastroUsuario.DoesNotExist:
+        except CustomUser.DoesNotExist:
             return Response({'error': 'Usuário não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
         
-class UsuarioMetaViewSet(viewsets.ViewSet):
+class UsuarioMetaViewSet(viewsets.ModelViewSet):
     queryset = UsuarioMeta.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = UsuarioMetaSerializer
@@ -52,7 +50,7 @@ class UsuarioMetaViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
     def criar_ou_atualizar_meta(self, request):
         usuario_id = request.data['ID_USUARIO']
-        usuario = CadastroUsuario.objects.get(id=usuario_id)
+        usuario = CustomUser.objects.get(id=usuario_id)
         mes = request.data['MES_ATUAL']
         ano = request.data['ANO_META']
         
@@ -71,3 +69,9 @@ class UsuarioMetaViewSet(viewsets.ViewSet):
                 USUARIO_ENTRADA=request.data['USUARIO_ENTRADA']
             )
             return Response({'mensagem': 'Meta criada com sucesso'})
+
+
+
+
+
+
