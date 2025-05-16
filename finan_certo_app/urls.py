@@ -19,11 +19,14 @@ from django.urls import include, path
 
 from rest_framework import routers
 
-from finan_certo.views import CadastroUsuarioViewSet, FinancasUsuarioViewSet, LoginViewSet, UsuarioMetaViewSet
+from finan_certo.views import FinancasUsuarioViewSet, LoginViewSet, UserViewSet, UsuarioMetaViewSet
+
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
 
 router = routers.DefaultRouter()
 
-router.register(r'cadastrousuario', CadastroUsuarioViewSet)
+router.register(r'usuarios', UserViewSet, basename='usuarios')
 router.register(r'financasusuario', FinancasUsuarioViewSet)
 router.register(r'login', LoginViewSet, basename='login')
 router.register(r'usuariometa', UsuarioMetaViewSet, basename='usuariometa')
@@ -31,4 +34,9 @@ router.register(r'usuariometa', UsuarioMetaViewSet, basename='usuariometa')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    
+    path('api/gettoken/', TokenObtainPairView.as_view(),
+         name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(),
+         name='token_refresh'),
 ]

@@ -1,19 +1,20 @@
 from django.utils import timezone
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-class CadastroUsuario(models.Model):
-    USUARIO_NOME_COMPLETO = models.CharField(max_length=200)
-    USUARIO_EMAIL = models.EmailField(max_length=200, null=False, blank=False)
-    USUARIO_SENHA = models.CharField(max_length=50, null=False, blank=False)
-    USUARIO_CRIADO_EM = models.DateTimeField(auto_now_add=True)
+from finan_certo.managers import CustomUserManager
 
+class CustomUser(AbstractUser):
+    username = None
+    email = models.EmailField(unique=True)
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+
+    objects = CustomUserManager()
 
     def __str__(self):
         return str(self.id)
-    
-    class Meta:
-        db_table = 'fc_usuarios'
-
 class FinancasUsuario(models.Model):
     TIPO_MES = (
         (1,'Janeiro'),
@@ -31,7 +32,7 @@ class FinancasUsuario(models.Model):
     )
 
     MES_ATUAL = models.IntegerField(choices=TIPO_MES)
-    ID_USUARIO = models.ForeignKey(CadastroUsuario, on_delete=models.CASCADE)
+    ID_USUARIO = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     FINANCAS_RECEITAS = models.FloatField(null=False, blank=False)
     FINANCAS_DESPESAS = models.FloatField(null=False, blank=False)
     FINANCAS_BALANCO = models.FloatField(null=False, blank=True)
@@ -90,18 +91,39 @@ class UsuarioMeta(models.Model):
     )
 
     MES_ATUAL = models.IntegerField(choices=TIPO_MES)
-    ID_USUARIO = models.ForeignKey(CadastroUsuario, on_delete=models.CASCADE)
+    ID_USUARIO = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     ANO_META = models.IntegerField(null=False)
     USUARIO_META = models.FloatField(null=False, blank=False)
     USUARIO_ENTRADA = models.FloatField(null=True, blank=True)
     META_CRIADO_EM = models.DateTimeField(auto_now_add=True)
     ATUALIZADO_EM = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        metaExistente = UsuarioMeta.objects.filter(
+            ID_USUARIO=self.ID_USUARIO,
+            MES_ATUAL=self.MES_ATUAL,
+            ANO_META=self.ANO_META,
+            USUARIO_META=self.USUARIO_META,
+            USUARIO_ENTRADA=self.USUARIO_ENTRADA
+        ).first()
 
+        if metaExistente:
+                
+            UsuarioMeta.objects.filter(pk=metaExistente.pk).update(
+                USUARIO_META=self.USUARIO_META,
+                USUARIO_ENTRADA=self.USUARIO_ENTRADA,
+                MES_ATUAL=self.MES_ATUAL,
+                ANO_META=self.ANO_META,
+                ATUALIZADO_EM=timezone.now()
+            )
+            return
+        else:    
+            super(UsuarioMeta, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.ID_USUARIO} - {self.get_MES_ATUAL_display()} ({self.ANO_META})"
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['ID_USUARIO', 'MES_ATUAL', 'ANO_META'], name='unique_usuario_meta')
         ]
         db_table = "fc_meta_usuario"
-
-    def __str__(self):
-        return f"{self.ID_USUARIO} - {self.get_MES_ATUAL_display()} ({self.ANO_META})"
