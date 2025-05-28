@@ -15,12 +15,16 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 class FinancasUsuarioViewSet(viewsets.ModelViewSet):
     queryset = FinancasUsuario.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = FinancasUsuarioSerializer
     ordering_fields = ('id', )
     filterset_fields = ('id',)
+
+    def perform_create(self, serializer):
+        serializer.save(ID_USUARIO=self.request.user)
 
 class LoginViewSet(viewsets.ModelViewSet):
 

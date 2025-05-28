@@ -23,10 +23,16 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
 class FinancasUsuarioSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = FinancasUsuario
         fields = '__all__'
+        extra_kwargs = {
+            'ID_USUARIO': {'read_only': True}
+        }
+    
 class UsuarioMetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = UsuarioMeta

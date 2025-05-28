@@ -15,6 +15,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return str(self.id)
+    
 class FinancasUsuario(models.Model):
     TIPO_MES = (
         (1,'Janeiro'),
